@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 
 import java.util.Map;
@@ -23,26 +24,31 @@ public class BeerClientImpl implements BeerClient {
 
     private final RestTemplateBuilder restTemplateBuilder;
 
-    private static final String BASE_URL = "http://localhost:8080";
+
 
     private static final String GET_BEER_PATH = "/api/v1/beer";
 
     @Override
-    public Page<BeerDTO> listBeers() {
+    public Page<BeerDTO> listBeers(String beerName) {
 
 
 
         RestTemplate restTemplate = restTemplateBuilder.build();
 
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromPath(GET_BEER_PATH);
+
+        if (beerName != null){
+            uriComponentsBuilder.queryParam("beerName", beerName);
+        }
 
 
-        ResponseEntity<String> stringResponse = restTemplate.getForEntity(GET_BEER_PATH, String.class);
+        ResponseEntity<String> stringResponse = restTemplate.getForEntity(uriComponentsBuilder.toUriString(), String.class);
 
-        ResponseEntity<Map> response = restTemplate.getForEntity( GET_BEER_PATH, Map.class);
+        ResponseEntity<Map> response = restTemplate.getForEntity( uriComponentsBuilder.toUriString(), Map.class);
 
-        ResponseEntity<JsonNode> jsonNodeResponse = restTemplate.getForEntity( GET_BEER_PATH, JsonNode.class);
+        ResponseEntity<JsonNode> jsonNodeResponse = restTemplate.getForEntity( uriComponentsBuilder.toUriString(), JsonNode.class);
 
-        ResponseEntity<BeerDTOPageImpl> pageResponse = restTemplate.getForEntity(GET_BEER_PATH, BeerDTOPageImpl.class);
+        ResponseEntity<BeerDTOPageImpl> pageResponse = restTemplate.getForEntity(uriComponentsBuilder.toUriString(), BeerDTOPageImpl.class);
 
         //System.out.println(stringResponse.getBody());
         //System.out.println(response.getBody());
