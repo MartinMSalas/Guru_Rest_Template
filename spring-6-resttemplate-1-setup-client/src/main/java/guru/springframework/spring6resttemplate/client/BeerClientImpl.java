@@ -16,20 +16,29 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @RequiredArgsConstructor
 @Service
 public class BeerClientImpl implements BeerClient {
 
-
     private final RestTemplateBuilder restTemplateBuilder;
 
 
-
     private static final String GET_BEER_PATH = "/api/v1/beer";
+    private static final String GET_BEER_PATH_ID = GET_BEER_PATH + "/{beerId}";
 
 
+
+    @Override
+    public Optional<BeerDTO> getBeerByID(UUID beerId, boolean showInventoryOnHand) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+
+        return restTemplate.getForObject(GET_BEER_PATH_ID, Optional.class);
+
+    }
 
     @Override
     public Page<BeerDTO>  listBeers(String beerName) {
@@ -115,6 +124,18 @@ public class BeerClientImpl implements BeerClient {
         System.out.println(response.getBody());
         System.out.println(jsonNodeResponse.getBody());
         System.out.println(pageResponse.getBody().getContent());
-        return null;
+        BeerDTO beerDTO = (BeerDTO) pageResponse.getBody().getContent().get(0);
+        System.out.println(beerDTO.getId());
+        return (pageResponse.getBody());
     }
+
+    @Override
+    public Optional<BeerDTO> getBeerById(UUID beerId) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        return Optional.ofNullable(restTemplate.getForObject(GET_BEER_PATH_ID, BeerDTO.class, beerId));
+    }
+
+
+
+
 }
